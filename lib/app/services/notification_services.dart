@@ -86,8 +86,8 @@ class NotifyHelper {
       {required String title, required String body}) async {
     // Android notification details
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      '', // Channel ID
-      '', // Channel name
+      'channelId', // Channel ID
+      'channelName', // Channel name
       importance: Importance.max,
       priority: Priority.high,
       showWhen:

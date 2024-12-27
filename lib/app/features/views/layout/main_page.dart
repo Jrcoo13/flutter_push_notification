@@ -21,27 +21,34 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: appScreens[selectedBottonNavItem]),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedBottonNavItem,
-        onTap: selectedBottomNavItem,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(FluentSystemIcons.ic_fluent_home_regular),
-              activeIcon: Icon(FluentSystemIcons.ic_fluent_home_filled),
-              label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(FluentSystemIcons.ic_fluent_folder_regular),
-              activeIcon: Icon(FluentSystemIcons.ic_fluent_folder_filled),
-              label: 'To Do'),
-          BottomNavigationBarItem(
-              icon: Icon(FluentSystemIcons.ic_fluent_settings_regular),
-              activeIcon: Icon(FluentSystemIcons.ic_fluent_settings_filled),
-              label: 'Another Page')
-        ],
+      body: appScreens[selectedBottonNavItem],
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+          splashFactory: NoSplash.splashFactory, // Removes tap effects
+          highlightColor: Colors.transparent, // Removes highlight effects
+        ),
+        child: BottomNavigationBar(
+          currentIndex: selectedBottonNavItem,
+          onTap: selectedBottomNavItem,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(FluentSystemIcons.ic_fluent_home_regular),
+                activeIcon: Icon(FluentSystemIcons.ic_fluent_home_filled),
+                label: 'Home'),
+            BottomNavigationBarItem(
+                icon: Icon(FluentSystemIcons.ic_fluent_folder_regular),
+                activeIcon: Icon(FluentSystemIcons.ic_fluent_folder_filled),
+                label: 'To Do'),
+            BottomNavigationBarItem(
+                icon: Icon(FluentSystemIcons.ic_fluent_settings_regular),
+                activeIcon: Icon(FluentSystemIcons.ic_fluent_settings_filled),
+                label: 'Another Page'),
+          ],
+        ),
       ),
     );
   }
