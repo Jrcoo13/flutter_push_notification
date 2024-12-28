@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_push_notification/app/features/resources/app_theme.dart';
+import 'package:flutter_push_notification/app/features/resources/style/app_theme.dart';
 import 'package:flutter_push_notification/app/features/views/layout/main_page.dart';
 import 'package:flutter_push_notification/app/services/theme_service.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() => GetMaterialApp(
+          debugShowCheckedModeBanner: false,
           darkTheme: AppThemes.dark,
           theme: AppThemes.light,
           themeMode: ThemeService().theme, // Use reactive theme

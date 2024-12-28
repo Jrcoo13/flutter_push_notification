@@ -116,4 +116,43 @@ class NotifyHelper {
       print("Error displaying notification: $e");
     }
   }
+
+  Future<void> scheduledNotification(
+      {required String title,
+      required String body,
+      required int duration}) async {
+    // Android notification details
+    await Future.delayed(Duration(seconds: duration), () {
+      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'channelId', // Channel ID
+        'channelName', // Channel name
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen:
+            true, // Optional: Set to true if you want to show the time of the notification
+      );
+
+      // iOS notification details
+      var iOSPlatformChannelSpecifics = DarwinNotificationDetails();
+
+      // Combine platform-specific notification details
+      var platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics,
+      );
+
+      // Show the notification
+      try {
+        flutterLocalNotificationsPlugin.show(
+          0, // Notification ID
+          title,
+          body,
+          platformChannelSpecifics,
+          payload: 'It could be anything you pass', // Optional payload
+        );
+      } catch (e) {
+        print("Error displaying notification: $e");
+      }
+    });
+  }
 }

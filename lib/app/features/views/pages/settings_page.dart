@@ -33,7 +33,13 @@ class _SettingsPageState extends State<SettingsPage> {
                       body: ThemeService().isDarkMode.value
                           ? 'Hello World'
                           : 'GoodBye World',
-                      title: 'Theme Changed');
+                      title:
+                          'Theme Changed'); //default realtime push notification
+                  notifyHelper.scheduledNotification(
+                      title: 'Schedule Notification With Duration',
+                      body: 'Hello World',
+                      duration:
+                          3); //schedule notification with 5 seconds duration
                   ThemeService().switchTheme();
                 },
                 icon: Icon(
