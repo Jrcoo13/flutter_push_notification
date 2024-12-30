@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_push_notification/app/components/custom_button/custom_default_button.dart';
 import 'package:flutter_push_notification/app/components/custom_text_field/custom_drop_down_button.dart';
 import 'package:flutter_push_notification/app/components/custom_text_field/text_field.dart';
-import 'package:flutter_push_notification/app/config/constant/app_color.dart';
+import 'package:flutter_push_notification/app/features/resources/style/app_color.dart';
 import 'package:flutter_push_notification/app/config/constant/constant.dart';
+import 'package:flutter_push_notification/app/features/controllers/taskController.dart';
+import 'package:flutter_push_notification/app/features/models/taskModel.dart';
 import 'package:flutter_push_notification/app/services/notification_services.dart';
+import 'package:get/get.dart';
 
 class AddTaskPage extends StatefulWidget {
   const AddTaskPage({super.key});
@@ -17,38 +20,103 @@ class AddTaskPage extends StatefulWidget {
 }
 
 class _AddTaskPageState extends State<AddTaskPage> {
+  final TaskController taskController = Get.put(TaskController());
+
   DateTime currentDate = DateTime.now();
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
 
-  int selectedTimeReminder = 5;
-  List<int> timeReminder = [5, 10, 15, 20, 25];
-
   String selectedTimeReminderRepetition = 'None';
-  List<String> timeReminderRepetition = ['None', 'Daily', 'Weekly', 'Monthly'];
+  List<String> timeReminderRepetition = ['None', 'Daily'];
 
   int selectedTaskColor = 0;
   List<Color> taskColor = [
-    Colors.deepPurple.shade400,
-    Colors.blue.shade400,
-    Colors.green.shade400
+    AppColor.PRIMARY_COLOR,
+    AppColor.BLACK1,
   ];
 
+  //Text controllers
   TextEditingController titleController = TextEditingController();
   TextEditingController noteController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+  TextEditingController startTimeController = TextEditingController();
+  TextEditingController endTimeController = TextEditingController();
+  TextEditingController reminderController = TextEditingController();
+  TextEditingController colorController = TextEditingController();
 
+  //initialize the notificationHelper request for local notification
   NotifyHelper notifyHelper = NotifyHelper();
 
+  // initialize the form key for form validator
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
     notifyHelper.initializeNotification();
     notifyHelper.requestIOSPermissions();
+    initializeControllers();
+  }
+
+  void initializeControllers() {
+    dateController.text =
+        AppConstant.formattedDate(currentDate.toString()).toString();
+    startTimeController.text = AppConstant.formattedTime(startTime.toString());
+    endTimeController.text = AppConstant.formattedTime(endTime.toString());
+    reminderController.text = selectedTimeReminderRepetition;
+    colorController.text = selectedTaskColor.toString();
+  }
+
+  void disposeControllers() {
+    titleController.dispose();
+    noteController.dispose();
+    dateController.dispose();
+    startTimeController.dispose();
+    endTimeController.dispose();
+    reminderController.dispose();
+    reminderController.dispose();
+    colorController.dispose();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    disposeControllers();
   }
 
   void validateField() {
-    if (formKey.currentState!.validate()) {}
+    if (formKey.currentState!.validate()) {
+      addTask(); // add the task to db
+      Get.back(); // going back to the corner when I first saw you~~~
+    } else {
+      Get.snackbar(
+        'Required',
+        'Please fill all the fields.',
+        snackPosition: SnackPosition.BOTTOM,
+        colorText: Colors.red,
+        backgroundColor: AppColor.WHITE,
+        icon: Icon(
+          FluentSystemIcons.ic_fluent_error_circle_filled,
+          color: Colors.red,
+        ),
+      );
+    }
+  }
+
+  addTask() async {
+    int id = await taskController.addTask(
+      task: TaskModel(
+        title: titleController.text,
+        note: noteController.text,
+        date: dateController.text,
+        startTime: startTimeController.text,
+        endTime: endTimeController.text,
+        reminder: reminderController.text,
+        color: int.parse(colorController.text),
+        isCompleted: 0,
+      ),
+    );
+    print('Task with the id of ${id} was created');
   }
 
   @override
@@ -93,6 +161,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     },
                   ),
                   MyTextField(
+                    textController: dateController,
                     label: 'Date',
                     isReadOnly: true,
                     placeholder:
@@ -113,6 +182,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     children: [
                       Expanded(
                         child: MyTextField(
+                          textController: startTimeController,
                           label: 'Start Time',
                           isReadOnly: true,
                           placeholder:
@@ -133,6 +203,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       ),
                       Expanded(
                         child: MyTextField(
+                          textController: endTimeController,
                           label: 'End Time',
                           isReadOnly: true,
                           placeholder:
@@ -151,19 +222,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     ],
                   ),
                   CustomDropDownButton(
+                    textController: reminderController,
                     label: 'Reminder',
-                    isReadOnly: true,
-                    placeholder: "$selectedTimeReminder minutes",
-                    validator: (value) {
-                      if (value!.isEmpty || value == '') {
-                        return '*This field is required';
-                      }
-                      return null;
-                    },
-                    widget: showReminder(),
-                  ),
-                  CustomDropDownButton(
-                    label: 'Repetition',
                     isReadOnly: true,
                     placeholder: selectedTimeReminderRepetition,
                     validator: (value) {
@@ -186,11 +246,13 @@ class _AddTaskPageState extends State<AddTaskPage> {
                             height: 10,
                           ),
                           Wrap(
-                            children: List<Widget>.generate(3, (index) {
+                            children: List<Widget>.generate(taskColor.length,
+                                (index) {
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
                                     selectedTaskColor = index;
+                                    colorController.text = index.toString();
                                   });
                                 },
                                 child: Stack(
@@ -254,6 +316,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     if (datePicker != null) {
       setState(() {
         currentDate = datePicker;
+        dateController.text = AppConstant.formattedDate(datePicker.toString());
       });
     }
   }
@@ -274,10 +337,14 @@ class _AddTaskPageState extends State<AddTaskPage> {
       if (isStartTime) {
         setState(() {
           startTime = formattedPickedTime;
+          startTimeController.text =
+              AppConstant.formattedTime(formattedPickedTime.toString());
         });
       } else {
         setState(() {
           endTime = formattedPickedTime;
+          endTimeController.text =
+              AppConstant.formattedTime(formattedPickedTime.toString());
         });
       }
     } else {
@@ -293,35 +360,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
       initialTime: TimeOfDay(
           hour: int.parse(AppConstant.getHour(startTime.toString())),
           minute: int.parse(AppConstant.getMinutes(startTime.toString()))),
-    );
-  }
-
-  showReminder() {
-    return DropdownButton(
-      padding: const EdgeInsets.only(right: 10),
-      icon: Icon(
-        FluentSystemIcons.ic_fluent_chevron_down_filled,
-        color: AppColor.LIGHT_COLOR,
-      ),
-      elevation: 4,
-      underline: Container(
-        height: 0,
-      ),
-      items: timeReminder.map<DropdownMenuItem<String>>((int value) {
-        return DropdownMenuItem<String>(
-          value: value.toString(),
-          child: Text(
-            value.toString(),
-          ),
-        );
-      }).toList(),
-      onChanged: (value) {
-        setState(
-          () {
-            selectedTimeReminder = int.parse(value.toString());
-          },
-        );
-      },
     );
   }
 
@@ -349,6 +387,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         setState(
           () {
             selectedTimeReminderRepetition = value.toString();
+            reminderController.text = value.toString();
           },
         );
       },

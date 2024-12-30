@@ -2,12 +2,19 @@
 2    <uses-permission android:name="android.permission.INTERNET"/>
 3    <uses-permission android:name="android.permission.VIBRATE"/>
 4    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-5    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/> 
+5    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+
 
     <application
         android:label="flutter_push_notification"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:exported="false">
+        </receiver> -->
         
         <activity
             android:name=".MainActivity"

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_push_notification/app/config/constant/app_color.dart';
+import 'package:flutter_push_notification/app/features/resources/style/app_color.dart';
 import 'package:flutter_push_notification/app/config/constant/font_size.dart';
 import 'package:google_fonts/google_fonts.dart';
 

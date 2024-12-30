@@ -2,7 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_push_notification/app/features/models/taskModel.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:get/get.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 class NotifyHelper {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -11,6 +15,7 @@ class NotifyHelper {
   Future<void> initializeNotification() async {
     // Uncomment if you need to initialize time zones
     // tz.initializeTimeZones();
+    configureLocalTimezone();
 
     // iOS initialization settings
     final DarwinInitializationSettings initializationSettingsIOS =
@@ -118,41 +123,66 @@ class NotifyHelper {
   }
 
   Future<void> scheduledNotification(
-      {required String title,
-      required String body,
-      required int duration}) async {
-    // Android notification details
-    await Future.delayed(Duration(seconds: duration), () {
+      int hour, int minute, TaskModel task) async {
+    try {
+      // Convert the hour and minute into a TZDateTime object
+      tz.TZDateTime scheduledTime = convertTime(hour, minute);
+
+      // Android notification details
       var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'channelId', // Channel ID
-        'channelName', // Channel name
-        importance: Importance.max,
-        priority: Priority.high,
-        showWhen:
-            true, // Optional: Set to true if you want to show the time of the notification
-      );
+          'task_channel', // Channel ID
+          'Task Notifications', // Channel name
+          channelDescription: 'Channel for scheduled task notifications',
+          importance: Importance.max,
+          priority: Priority.high,
+          playSound: true,
+          showWhen: true);
 
       // iOS notification details
       var iOSPlatformChannelSpecifics = DarwinNotificationDetails();
 
-      // Combine platform-specific notification details
+      // Combine platform-specific details
       var platformChannelSpecifics = NotificationDetails(
         android: androidPlatformChannelSpecifics,
         iOS: iOSPlatformChannelSpecifics,
       );
 
-      // Show the notification
-      try {
-        flutterLocalNotificationsPlugin.show(
-          0, // Notification ID
-          title,
-          body,
-          platformChannelSpecifics,
-          payload: 'It could be anything you pass', // Optional payload
-        );
-      } catch (e) {
-        print("Error displaying notification: $e");
-      }
-    });
+      // Schedule the notification
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        task.id ?? 0,
+        "${task.startTime!.split(' ')[0]}-${task.startTime!}", // Notification title
+        task.note, // Notification body
+        scheduledTime, // Time to schedule the notification
+
+        platformChannelSpecifics,
+        androidScheduleMode: AndroidScheduleMode.exact,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time, // Match time only
+        payload: task.toJson().toString(), // Optional payload
+      );
+
+      print("Notification scheduled for $scheduledTime");
+    } catch (e) {
+      print("Error scheduling notification: $e");
+    }
+  }
+
+  tz.TZDateTime convertTime(int hour, int minutes) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+
+    tz.TZDateTime scheduledDate =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minutes);
+
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+    return scheduledDate;
+  }
+
+  Future<void> configureLocalTimezone() async {
+    tz.initializeTimeZones();
+    final String timeZone = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZone));
   }
 }
