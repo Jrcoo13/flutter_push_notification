@@ -12,7 +12,7 @@ class MyDatabase {
   static Future<void> initializeDatabase() async {
     if (myDb != null) return;
 
-    print('Database is initializing');
+    print('initializing sqlite flutter database');
     try {
       String path = '${await getDatabasesPath()}$databaseName';
       myDb = await openDatabase(path, version: version,

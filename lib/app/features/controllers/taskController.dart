@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_overrides
+// ignore_for_file: file_names
 
 import 'package:flutter_push_notification/app/config/Database.dart';
 import 'package:flutter_push_notification/app/features/models/taskModel.dart';

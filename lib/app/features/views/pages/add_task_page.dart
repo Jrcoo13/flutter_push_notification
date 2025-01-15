@@ -26,7 +26,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
 
-  String selectedTimeReminderRepetition = 'None';
+  String selectedTimeReminderRepetition = 'Daily';
   List<String> timeReminderRepetition = ['None', 'Daily'];
 
   int selectedTaskColor = 0;
@@ -34,6 +34,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
     AppColor.PRIMARY_COLOR,
     AppColor.BLACK1,
   ];
+
+  bool isDaily = false;
 
   //Text controllers
   TextEditingController titleController = TextEditingController();
@@ -74,7 +76,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
     startTimeController.dispose();
     endTimeController.dispose();
     reminderController.dispose();
-    reminderController.dispose();
     colorController.dispose();
   }
 
@@ -108,7 +109,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
       task: TaskModel(
         title: titleController.text,
         note: noteController.text,
-        date: dateController.text,
+        date: isDaily
+            ? AppConstant.formattedDate(currentDate.toString())
+            : dateController.text,
         startTime: startTimeController.text,
         endTime: endTimeController.text,
         reminder: reminderController.text,
@@ -116,7 +119,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         isCompleted: 0,
       ),
     );
-    print('Task with the id of ${id} was created');
+    print('Task with the id of $id was created');
   }
 
   @override
@@ -160,24 +163,40 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       return null;
                     },
                   ),
-                  MyTextField(
-                    textController: dateController,
-                    label: 'Date',
+                  CustomDropDownButton(
+                    textController: reminderController,
+                    label: 'Reminder',
                     isReadOnly: true,
-                    placeholder:
-                        AppConstant.formattedDate(currentDate.toString())
-                            .toString(),
+                    placeholder: selectedTimeReminderRepetition,
                     validator: (value) {
                       if (value!.isEmpty || value == '') {
                         return '*This field is required';
                       }
                       return null;
                     },
-                    trailingIcon: FluentSystemIcons.ic_fluent_calendar_regular,
-                    onPressed: () {
-                      getDateTimeUser(context);
-                    },
+                    widget: showReminderTimer(),
                   ),
+                  isDaily
+                      ? MyTextField(
+                          textController: dateController,
+                          label: 'Date',
+                          isReadOnly: true,
+                          placeholder:
+                              AppConstant.formattedDate(currentDate.toString())
+                                  .toString(),
+                          validator: (value) {
+                            if (value!.isEmpty || value == '') {
+                              return '*This field is required';
+                            }
+                            return null;
+                          },
+                          trailingIcon:
+                              FluentSystemIcons.ic_fluent_calendar_regular,
+                          onPressed: () {
+                            getDateTimeUser(context);
+                          },
+                        )
+                      : const SizedBox.shrink(),
                   Row(
                     children: [
                       Expanded(
@@ -220,19 +239,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
                         ),
                       ),
                     ],
-                  ),
-                  CustomDropDownButton(
-                    textController: reminderController,
-                    label: 'Reminder',
-                    isReadOnly: true,
-                    placeholder: selectedTimeReminderRepetition,
-                    validator: (value) {
-                      if (value!.isEmpty || value == '') {
-                        return '*This field is required';
-                      }
-                      return null;
-                    },
-                    widget: showReminderTimer(),
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -388,6 +394,11 @@ class _AddTaskPageState extends State<AddTaskPage> {
           () {
             selectedTimeReminderRepetition = value.toString();
             reminderController.text = value.toString();
+            if (value != 'Daily') {
+              isDaily = true;
+            } else {
+              isDaily = false;
+            }
           },
         );
       },

@@ -1,5 +1,4 @@
 // ignore_for_file: deprecated_member_use
-
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_push_notification/app/config/constant/font_size.dart';
@@ -24,6 +23,12 @@ class TaskTile extends StatelessWidget {
           color: _getBGClr(task?.color ?? 0),
         ),
         child: Row(children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            height: 60,
+            width: 1,
+            color: AppColor.LIGHT_COLOR,
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,24 +72,6 @@ class TaskTile extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            height: 60,
-            width: 1,
-            color: AppColor.LIGHT_COLOR,
-          ),
-          // RotatedBox(
-          //   quarterTurns: 3,
-          //   child: Text(
-          //     task!.isCompleted == 1 ? "COMPLETED" : "TODO",
-          //     style: GoogleFonts.lato(
-          //       textStyle: TextStyle(
-          //           fontSize: 10,
-          //           fontWeight: FontWeight.bold,
-          //           color: Colors.white),
-          //     ),
-          //   ),
-          // ),
         ]),
       ),
     );

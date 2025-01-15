@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_push_notification/app/services/notification_services.dart';
 
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _ProfilePageState extends State<ProfilePage> {
   NotifyHelper notifyHelper = NotifyHelper();
   @override
   void initState() {

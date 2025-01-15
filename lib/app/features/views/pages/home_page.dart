@@ -112,23 +112,13 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
             child: Obx(() {
-              if (taskController.taskList.isEmpty) {
-                return Center(
-                  child: Text(
-                    'No tasks available.',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                );
-              }
-
               return ListView.builder(
                 itemCount: taskController.taskList.length,
                 itemBuilder: (context, index) {
                   TaskModel task = taskController.taskList[index];
-                  // print(task.toJson());
+                  print(task.toJson());
                   // Handle Daily Tasks and Current Date Task
-                  if (task.reminder == 'Daily' &&
-                      task.date == _selectedDate.toString()) {
+                  if (task.reminder == 'Daily') {
                     try {
                       DateTime date = DateFormat('HH:mm a')
                           .parse(task.startTime.toString());
@@ -161,7 +151,8 @@ class _HomePageState extends State<HomePage> {
                   }
                   // Handle Tasks for the Selected Date
                   if (task.date ==
-                      AppConstant.formattedDate(_selectedDate.toString())) {
+                          AppConstant.formattedDate(_selectedDate.toString()) &&
+                      task.isCompleted == 0) {
                     try {
                       DateTime date = DateFormat('HH:mm a')
                           .parse(task.startTime.toString());
